@@ -67,5 +67,11 @@ Base URL: `http://localhost:3000/api/auth`
 
 ---
 
+## 👤 Author
+
+- **Pooja Sahu** - [@poojasahuu2006-design](https://github.com/poojasahuu2006-design)
+
+---
+
 ## 📄 License
 Licensed under the [ISC License](LICENSE).
