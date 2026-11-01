@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
+import { setupSwagger } from "./docs/swagger.js";
 
 const app = express();
 
@@ -9,6 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(morgan("dev")); // Gives information about the API
 app.use(cookieParser());
+
+// Swagger API Documentation
+setupSwagger(app);
 
 // routes prefix
 app.use("/api/auth", authRouter);
