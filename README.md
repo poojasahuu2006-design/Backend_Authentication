@@ -1,153 +1,71 @@
-# 🔐 Secure Backend Authentication & Session Management System
+# 🔐 Backend Authentication API
 
-A robust, production-ready Node.js & Express RESTful authentication service featuring **JWT Access Tokens**, **HTTP-Only Cookie Refresh Tokens**, **Database-backed Session Tracking & Revocation**, and **Automated Email OTP Verification** via Nodemailer.
+A secure Node.js & Express authentication backend with **JWT access/refresh tokens**, **session management**, and **email OTP verification** using Nodemailer.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-- **User Registration & Email OTP Verification**:
-  - Secure account registration with hashed passwords (SHA-256).
-  - 6-digit one-time passcode (OTP) generation with styled HTML email delivery using Gmail SMTP.
-  - Safe account verification before granting access.
-- **Dual-Token Authentication (Access + Refresh Token)**:
-  - Short-lived JSON Web Tokens (JWT) for API route authorization (15 minutes).
-  - Long-lived rotating refresh tokens stored securely in `httpOnly`, `sameSite` cookies (7 days).
-- **Session Management & Device Tracking**:
-  - Active sessions tracked in MongoDB storing IP address and `User-Agent`.
-  - Supports **Single-Device Logout** (revokes active session).
-  - Supports **Logout from All Devices** (revokes all active sessions for that user).
-- **Protected Routes & Robust Error Handling**:
-  - Authenticated user profile retrieval (`/api/auth/get-me`).
-  - Centralized JSON error-handling middleware preventing unhandled crashes.
+- **Email OTP Verification**: Generates a 6-digit OTP and sends responsive HTML verification emails via Gmail SMTP.
+- **Dual-Token Auth**: 15-minute JWT access tokens and 7-day refresh tokens stored in secure `httpOnly` cookies.
+- **Session Tracking & Device Revocation**: Tracks client IP and User-Agent in MongoDB; supports single-device and all-device logout.
+- **Protected Routes**: Secure `/api/auth/get-me` endpoint validating session revocation status.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Runtime & Framework**: [Node.js](https://nodejs.org/) (ES Modules), [Express 5](https://expressjs.com/)
-- **Database**: [MongoDB Atlas](https://www.mongodb.com/) with [Mongoose ODM](https://mongoosejs.com/)
-- **Authentication**: [JSON Web Tokens (JWT)](https://jwt.io/), [cookie-parser](https://www.npmjs.com/package/cookie-parser)
-- **Email Service**: [Nodemailer](https://nodemailer.com/) with Gmail SMTP & App Passwords
-- **Logger**: [Morgan](https://www.npmjs.com/package/morgan) (`dev` format)
+- **Backend**: Node.js (ES Modules), Express 5
+- **Database**: MongoDB with Mongoose
+- **Auth & Security**: JSON Web Tokens (`jsonwebtoken`), Node.js `crypto`, `cookie-parser`
+- **Email**: Nodemailer (Gmail App Password)
 
 ---
 
-## 📁 Project Structure
+## 🚀 Quick Start
 
-```text
-Backend_Authentication/
-├── server.js                          # Server bootstrap & DB connection initialization
-├── package.json                       # Dependencies and run scripts
-├── .env.example                       # Template for environment configuration
-├── .gitignore                         # Protects secrets & node_modules from git
-└── src/
-    ├── app.js                         # Express configuration & global middlewares
-    ├── Config/
-    │   ├── Db.js                      # MongoDB connection handler
-    │   ├── config.js                  # Environment variable validation & exports
-    │   └── controllers/
-    │       └── auth.controller.js     # Auth logic (register, login, verify, logout, getMe)
-    ├── models/
-    │   ├── user.model.js              # User schema (username, email, password, verified)
-    │   ├── session.model.js           # Session schema (user, refreshTokenHash, ip, userAgent, revoked)
-    │   └── otp.model.js               # OTP schema (email, user, otpHash, timestamps)
-    ├── routes/
-    │   └── auth.routes.js             # Route declarations for /api/auth/*
-    ├── services/
-    │   └── email.services.js          # Nodemailer transporter & email dispatcher
-    └── utils/
-        └── utils.js                   # OTP generator & responsive HTML template
-```
-
----
-
-## ⚙️ Installation & Setup
-
-### 1. Clone the repository
+### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/Backend_Authentication.git
+git clone https://github.com/poojasahuu2006-design/Backend_Authentication.git
 cd Backend_Authentication
-```
-
-### 2. Install dependencies
-```bash
 npm install
 ```
 
-### 3. Configure environment variables
-Create a `.env` file in the root directory by copying `.env.example`:
-```bash
-cp .env.example .env
-```
-Fill in your configuration:
+### 2. Configure Environment (`.env`)
+Create a `.env` file based on `.env.example`:
 ```env
 PORT=3000
-MONGODB_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority"
-JWT_SECRET="your_secure_random_jwt_secret"
+MONGODB_URL="your_mongodb_connection_string"
+JWT_SECRET="your_jwt_secret"
 GOOGLE_USER="your_email@gmail.com"
-EMAIL_APP_PASSWORD="your_16_character_google_app_password"
+EMAIL_APP_PASSWORD="your_16_char_app_password"
 ```
 
-> **Note**: To generate an App Password, visit your [Google Account Security](https://myaccount.google.com/security) → Ensure 2-Step Verification is ON → Search **App Passwords** → Create one.
-
-### 4. Run the server
+### 3. Run the Server
 ```bash
-# Development mode (with nodemon)
+# Development (with nodemon)
 npm run dev
 
-# Production mode
+# Production
 node server.js
 ```
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Reference
 
 Base URL: `http://localhost:3000/api/auth`
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 | :--- | :--- | :--- | :---: |
-| `POST` | `/register` | Creates a new user and sends an OTP email | ❌ |
-| `POST` | `/verify-email` | Verifies OTP, activates account, and issues tokens | ❌ |
-| `POST` | `/login` | Authenticates credentials and sets cookie | ❌ |
-| `GET` | `/get-me` | Returns current user profile | ✅ (Bearer Token) |
-| `GET` | `/logout` | Revokes the active session and clears cookie | ✅ (Cookie) |
-| `GET` | `/logout-all` | Revokes all active sessions for the user | ✅ (Cookie) |
-
----
-
-## 🧪 Postman Testing Samples
-
-### 1. Register User (`POST /api/auth/register`)
-```json
-{
-  "username": "johndoe",
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
-}
-```
-
-### 2. Verify Email (`POST /api/auth/verify-email`)
-```json
-{
-  "email": "johndoe@example.com",
-  "otp": "123456"
-}
-```
-
-### 3. Login (`POST /api/auth/login`)
-```json
-{
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
-}
-```
-
-### 4. Get Current User (`GET /api/auth/get-me`)
-- **Authorization**: `Bearer <your_access_token>`
+| `POST` | `/register` | Register user & send OTP email | Public |
+| `POST` | `/verify-email` | Verify OTP & issue tokens | Public |
+| `POST` | `/login` | Authenticate user & set session cookie | Public |
+| `GET` | `/get-me` | Get current user profile | `Bearer <token>` |
+| `GET` | `/logout` | Revoke current session & clear cookie | Cookie |
+| `GET` | `/logout-all` | Revoke all sessions across all devices | Cookie |
 
 ---
 
 ## 📄 License
-This project is licensed under the [ISC License](LICENSE).
+Licensed under the [ISC License](LICENSE).
